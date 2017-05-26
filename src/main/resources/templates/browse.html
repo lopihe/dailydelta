@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>dailyΔelta | known words</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>dailyΔelta</h1>
+        <h3>Logged in as <span th:text="${account.email}" /></h3>
+    </div>
+
+    <div class="row" th:if="${words != null}">
+        <div class="col-sm-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Known words, total: <span th:text="${words.all.size()}" /></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="word : ${words.all}">
+                    <td th:text="${word}">Some text</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+</html>

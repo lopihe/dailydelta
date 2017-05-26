@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>dailyΔelta | add new words</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>dailyΔelta</h1>
+        <h3>Logged in as <span th:text="${account.email}" /></h3>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-6">
+            <form th:action="@{/check}" th:object="${content}" method="POST">
+                <div class="form-group">
+                    <label for="url">URL to parse</label>
+                    <input id="url" type="text" class="form-control" placeholder="Enter url to parse new words from"  th:field="*{url}" />
+                </div>
+                <button type="submit" class="btn btn-default">Check</button>
+            </form>
+        </div>
+    </div>
+
+    <hr />
+    <div class="row" th:if="${content.delta != null}">
+        <div class="col-sm-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>New words: <span th:text="${content.delta.size()}" /> </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="word : ${content.delta}">
+                    <td th:text="${word.key}">Some text</td>
+                    <td>
+                        <p th:each="context : ${word.value.contexts}">
+                            <div th:text="${context.content}" />
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+</html>
