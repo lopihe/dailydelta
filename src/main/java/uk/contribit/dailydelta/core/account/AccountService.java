@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.contribit.dailydelta.core.word.WordRepository;
+import uk.contribit.dailydelta.core.word.persistence.WordRepository;
 
 import java.util.UUID;
 
@@ -30,7 +30,6 @@ public class AccountService {
         LOG.debug("Logging in {}", email);
         Account account = accountRepository.findByEmail(email);
         if (account == null) {
-            LOG.debug("No account found for {}, automatically registering", email);
             account = register(email);
         }
         return account;
@@ -39,6 +38,6 @@ public class AccountService {
     public void delete(Account account) {
         LOG.debug("Deleting account and words for {} with id {}", account.getEmail(), account.getId());
         accountRepository.delete(account);
-        wordRepository.delete(account.getId());
+        wordRepository.delete(account.getId().toString());
     }
 }

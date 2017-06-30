@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>dailyΔelta | add new words</title>
+    <title>dailyΔelta | add new permanentWords</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
@@ -18,7 +18,7 @@
             <form th:action="@{/check}" th:object="${content}" method="POST">
                 <div class="form-group">
                     <label for="url">URL to parse</label>
-                    <input id="url" type="text" class="form-control" placeholder="Enter url to parse new words from"  th:field="*{url}" />
+                    <input id="url" type="text" class="form-control" placeholder="Enter url to parse new permanentWords from"  th:field="*{url}" />
                 </div>
                 <button type="submit" class="btn btn-default">Check</button>
             </form>
@@ -31,17 +31,18 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>New words: <span th:text="${content.delta.size()}" /> </th>
+                    <th>New permanentWords: <span th:text="${content.delta.size()}" /> </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="word : ${content.delta}">
-                    <td th:text="${word.key}">Some text</td>
+                <tr th:each="wordDetails : ${content.delta}">
+                    <td th:text="${wordDetails.word}">Some text</td>
                     <td>
-                        <p th:each="context : ${word.value.contexts}">
-                            <div th:text="${context.content}" />
+                        <p th:each="context : ${wordDetails.contexts}">
+                            <div th:text="${context}" />
                         </p>
                     </td>
+                    <td th:text="${wordDetails.occurrences}">Some text</td>
                 </tr>
                 </tbody>
             </table>

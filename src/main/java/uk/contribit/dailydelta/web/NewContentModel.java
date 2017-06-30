@@ -1,18 +1,24 @@
 package uk.contribit.dailydelta.web;
 
-import uk.contribit.dailydelta.core.context.Contexts;
+import uk.contribit.dailydelta.core.word.WordDetails;
 
-import java.util.Map;
+import java.util.Set;
 
 public class NewContentModel {
     private String url;
-    private Map<String, Contexts> delta;
+    private int level = 0;
+
+    private Set<WordDetails> delta;
 
     public String getUrl() {
         return url;
     }
 
-    public Map<String, Contexts> getDelta() {
+    public int getLevel() {
+        return level;
+    }
+
+    public Set<WordDetails> getDelta() {
         return delta;
     }
 
@@ -20,7 +26,7 @@ public class NewContentModel {
         this.url = url;
     }
 
-    public void setDelta(Map<String, Contexts> delta) {
+    public void setDelta(Set<WordDetails> delta) {
         this.delta = delta;
     }
 }

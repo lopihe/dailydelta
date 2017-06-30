@@ -1,39 +1,43 @@
 package uk.contribit.dailydelta.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import uk.contribit.dailydelta.core.DeltaFinder;
 import uk.contribit.dailydelta.core.HttpContentSource;
 import uk.contribit.dailydelta.core.account.Account;
 import uk.contribit.dailydelta.core.account.AccountService;
-import uk.contribit.dailydelta.core.context.ContextRepository;
-import uk.contribit.dailydelta.core.context.Contexts;
 import uk.contribit.dailydelta.core.text.HtmlTextSource;
-import uk.contribit.dailydelta.core.text.TextSource;
-import uk.contribit.dailydelta.core.word.WordRepository;
+import uk.contribit.dailydelta.core.text.Text;
+import uk.contribit.dailydelta.core.text.TextSegmenter;
+import uk.contribit.dailydelta.core.text.processor.DeltaProcessor;
+import uk.contribit.dailydelta.core.text.processor.WordDetailsProcessor;
+import uk.contribit.dailydelta.core.word.WordDetails;
+import uk.contribit.dailydelta.core.word.WordService;
 import uk.contribit.dailydelta.core.word.Words;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 @Controller
 public class NewContentController {
+    private static final Logger LOG = LoggerFactory.getLogger(NewContentController.class);
+
     @Autowired
-    private DeltaFinder deltaFinder;
+    private DeltaProcessor deltaFinder;
 
     @Autowired
     private AccountService accountService;
 
     @Autowired
-    private WordRepository wordRepo;
-
-    @Autowired
-    private ContextRepository contextRepo;
+    private WordService wordService;
 
     @RequestMapping(path = "/check", method = RequestMethod.GET)
     public String addContent(ModelMap model, Principal principal) throws IOException {
@@ -44,40 +48,36 @@ public class NewContentController {
 
     @RequestMapping(path = "/check", method = RequestMethod.POST)
     public String processContent(@ModelAttribute("content") NewContentModel model, ModelMap m, Principal principal) throws IOException {
-        String html = new HttpContentSource(model.getUrl()).get();
-        TextSource textSource = new HtmlTextSource(html);
-
         Account account = AccountUtils.lookup(principal, accountService);
         m.addAttribute("account", account);
 
-        Words words = wordRepo.findOne(account.getId());
-        if (words == null) {
-            words = new Words(account.getId());
-        }
+        String html = new HttpContentSource(model.getUrl()).get();
+        Text text = new HtmlTextSource(html).getText();
 
-        Map<String, Contexts> delta = deltaFinder.identifyDelta(textSource, words);
+        Words words = wordService.getWords(account, text.getLocale());
 
-        words.addAll(delta.keySet());
 
-        wordRepo.save(words);
+        DeltaProcessor deltaProcessor = new DeltaProcessor();
+        WordDetailsProcessor detailsProcessor = new WordDetailsProcessor();
+        TextSegmenter textSegmenter = new TextSegmenter(deltaProcessor, detailsProcessor);
 
-        updateContexts(words, delta);
+        textSegmenter.segment(text, words);
 
-        model.setDelta(delta);
+        Words delta = deltaProcessor.getDelta();
+
+        LOG.info("Known words in source: {}", detailsProcessor.getKnownDetails().size());
+
+        Map<String, WordDetails> details = new HashMap<>();
+        details.putAll(detailsProcessor.getPendingDetails());
+        details.putAll(detailsProcessor.getKnownDetails());
+
+        LOG.info("Total words in source: {}", details.size());
+
+        wordService.addPending(account, text.getLocale(), words, delta);
+        wordService.synchDetails(details, text.getLocale());
+
+        model.setDelta(new TreeSet<>(detailsProcessor.getPendingDetails().values()));
 
         return "check";
-    }
-
-    private void updateContexts(Words words, Map<String, Contexts> delta) {
-        for (String word : delta.keySet()) {
-            Contexts oldContexts = contextRepo.findOne(word);
-            Contexts newContexts = delta.get(word);
-            if (oldContexts != null) {
-                oldContexts.addAll(newContexts);
-            } else {
-                oldContexts = newContexts;
-            }
-            contextRepo.save(oldContexts);
-        }
     }
 }

@@ -1,58 +1,79 @@
 package uk.contribit.dailydelta.core.word;
 
-import org.springframework.data.annotation.Id;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.annotation.Transient;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public final class Words {
-    @Id
-    private final UUID accountId;
-    private final Collection<String> words = new ArrayList<>();
-    private final Collection<String> exposedWords = Collections.unmodifiableCollection(words);
+    private static final Logger LOG = LoggerFactory.getLogger(Words.class);
 
-    public Words(UUID accountId) {
-        this(accountId, new ArrayList<>());
+    private final SortedSet<String> permanentWords = new TreeSet<>();
+    @Transient private final SortedSet<String> exposedPermanentWords = Collections.unmodifiableSortedSet(permanentWords);
+    private final SortedSet<String> pendingWords = new TreeSet<>();
+    @Transient private final SortedSet<String> exposedPendingWords = Collections.unmodifiableSortedSet(pendingWords);
+    private final SortedSet<String> ignoredWords = new TreeSet<>();
+    @Transient private final SortedSet<String> exposedIgnoredWords = Collections.unmodifiableSortedSet(ignoredWords);
+
+    public Words() {
+        this(Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
     }
 
     @PersistenceConstructor
-    public Words(UUID accountId, Collection<String> words) {
-        this.accountId = accountId;
-        this.words.addAll(words);
-    }
-
-    public UUID getAccountId() {
-        return accountId;
+    public Words(Set<String> permanentWords, Set<String> ignoredWords, Set<String> pendingWords) {
+        this.permanentWords.addAll(permanentWords);
+        this.ignoredWords.addAll(ignoredWords);
+        this.pendingWords.addAll(pendingWords);
     }
 
     public boolean hasWord(String word) {
-        return words.contains(word);
+        return permanentWords.contains(word) || pendingWords.contains(word) || ignoredWords.contains(word);
     }
 
-    public void addWord(String word) {
-        words.add(word);
+    public void addPermanentWord(String word) {
+        permanentWords.add(word);
     }
 
-    public Collection<String> getAll() {
-        return exposedWords;
+    public void addPendingWord(String word) {
+        pendingWords.add(word);
+    }
+
+    public void addIgnoredWord(String word) {
+        ignoredWords.add(word);
+    }
+
+    public SortedSet<String> getAllPermanent() {
+        return exposedPermanentWords;
+    }
+
+    public SortedSet<String> getAllPending() {
+        return exposedPendingWords;
+    }
+
+    public SortedSet<String> getAllIgnored() {
+        return exposedIgnoredWords;
     }
 
     public boolean isValid(String word) {
         return word.length() > 0 && Character.isLetter(word.charAt(0));
     }
 
-    public void addAll(Collection<String> words) {
-        this.words.addAll(words);
+    public void addAllPending(Collection<String> words) {
+        this.pendingWords.addAll(words);
     }
 
     @Override
     public String toString() {
         return "Words{" +
-                "accountId=" + accountId +
-                ", words=" + words +
+                "exposedPermanentWords=" + exposedPermanentWords +
+                ", exposedPendingWords=" + exposedPendingWords +
+                ", exposedIgnoredWords=" + exposedIgnoredWords +
                 '}';
     }
 }

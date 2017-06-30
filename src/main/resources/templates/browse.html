@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>dailyΔelta | known words</title>
+    <title>dailyΔelta | known permanentWords</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
@@ -13,17 +13,49 @@
         <h3>Logged in as <span th:text="${account.email}" /></h3>
     </div>
 
-    <div class="row" th:if="${words != null}">
+    <div class="row" th:if="${words.allPermanent != null}">
         <div class="col-sm-12">
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>Known words, total: <span th:text="${words.all.size()}" /></th>
+                    <th>Known words, total: <span th:text="${words.allPermanent.size()}" /></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="word : ${words.all}">
-                    <td th:text="${word}">Some text</td>
+                <tr th:each="wordDetails : ${words.allPermanent}">
+                    <td th:text="${wordDetails}">Some text</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row" th:if="${words.allPending != null}">
+        <div class="col-sm-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Pending words, total: <span th:text="${words.allPending.size()}" /></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="wordDetails : ${words.allPending}">
+                    <td th:text="${wordDetails}">Some text</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row" th:if="${words.allIgnored != null}">
+        <div class="col-sm-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Ignored words, total: <span th:text="${words.allIgnored.size()}" /></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="wordDetails : ${words.allIgnored}">
+                    <td th:text="${wordDetails}">Some text</td>
                 </tr>
                 </tbody>
             </table>

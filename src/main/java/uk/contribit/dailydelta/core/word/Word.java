@@ -1,21 +1,27 @@
 package uk.contribit.dailydelta.core.word;
 
-import java.net.URI;
+import java.time.Instant;
 
 public final class Word {
     private final String content;
-    private final URI dictionaryReference;
+    private final Instant addedTime;
+    private final long occurrences;
 
-    public Word(String content, URI dictionaryReference) {
+    public Word(String content, Instant addedTime, long occurrences) {
         this.content = content;
-        this.dictionaryReference = dictionaryReference;
+        this.addedTime = addedTime;
+        this.occurrences = occurrences;
     }
 
     public String getContent() {
         return content;
     }
 
-    public URI getDictionaryReference() {
-        return dictionaryReference;
+    public Instant getAddedTime() {
+        return addedTime;
+    }
+
+    public long getOccurrences() {
+        return occurrences;
     }
 }
